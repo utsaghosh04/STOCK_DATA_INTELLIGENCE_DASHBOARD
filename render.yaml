@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: financial-data-platform
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///./financial_data.db
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+    healthCheckPath: /health
+
+# Optional: Uncomment to add PostgreSQL database
+# databases:
+#   - name: financial-db
+#     plan: free
+#     region: oregon
+

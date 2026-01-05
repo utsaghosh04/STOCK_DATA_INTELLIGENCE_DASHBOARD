@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Data Platform - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/config.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📈 Financial Data Platform</h1>
+            <p>Real-time Stock Market Analysis & Insights</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <h2>Companies</h2>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search companies...">
+                </div>
+                <div id="companiesList" class="companies-list">
+                    <div class="loading">Loading companies...</div>
+                </div>
+            </aside>
+
+            <!-- Main Dashboard -->
+            <main class="dashboard">
+                <div class="dashboard-header">
+                    <h2 id="selectedCompany">Select a company to view data</h2>
+                    <div class="controls">
+                        <select id="timeFilter">
+                            <option value="30">Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                            <option value="180">Last 180 Days</option>
+                            <option value="365">Last Year</option>
+                        </select>
+                        <button id="compareBtn" class="btn-secondary">Compare Stocks</button>
+                        <button id="predictBtn" class="btn-primary">Get Prediction</button>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Closing Price Trend</h3>
+                        <canvas id="priceChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Daily Returns</h3>
+                        <canvas id="returnsChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Volume Analysis</h3>
+                        <canvas id="volumeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h4>52-Week High</h4>
+                        <p id="week52High" class="value">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>52-Week Low</h4>
+                        <p id="week52Low" class="value">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Average Close</h4>
+                        <p id="avgClose" class="value">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Current Price</h4>
+                        <p id="currentPrice" class="value">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Volatility Score</h4>
+                        <p id="volatilityScore" class="value">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Sentiment Index</h4>
+                        <p id="sentimentIndex" class="value">-</p>
+                    </div>
+                </div>
+
+                <!-- Insights Section -->
+                <div class="insights-section">
+                    <h2>Market Insights</h2>
+                    <div class="insights-grid">
+                        <div class="insight-card">
+                            <h3>Top Gainers</h3>
+                            <div id="topGainers" class="insight-list"></div>
+                        </div>
+                        <div class="insight-card">
+                            <h3>Top Losers</h3>
+                            <div id="topLosers" class="insight-list"></div>
+                        </div>
+                        <div class="insight-card">
+                            <h3>Most Volatile</h3>
+                            <div id="mostVolatile" class="insight-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Modal -->
+                <div id="compareModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Compare Stocks</h2>
+                        <div class="compare-form">
+                            <select id="symbol1Select">
+                                <option value="">Select first stock</option>
+                            </select>
+                            <select id="symbol2Select">
+                                <option value="">Select second stock</option>
+                            </select>
+                            <button id="compareSubmit" class="btn-primary">Compare</button>
+                        </div>
+                        <div id="compareResults" class="compare-results"></div>
+                    </div>
+                </div>
+
+                <!-- Prediction Modal -->
+                <div id="predictModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Price Prediction</h2>
+                        <div id="predictionResults" class="prediction-results"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
+
