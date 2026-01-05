@@ -6,11 +6,13 @@ on:
       - main
   workflow_dispatch:
 
+# Grant GITHUB_TOKEN the permissions required for Pages deployment
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Allow only one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -27,14 +29,14 @@ jobs:
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
-        with:
-          enablement: true  # Enable Pages if not already enabled
+        # Note: Pages must be enabled manually in repository Settings > Pages first
+        # This step will fail if Pages is not enabled
       
-      - name: Copy static files to root
+      - name: Copy static files
         run: |
           mkdir -p _site
           cp -r static/* _site/
-          # Ensure index.html exists at root
+          # Verify index.html exists
           if [ ! -f _site/index.html ]; then
             echo "Error: index.html not found in static folder"
             exit 1
