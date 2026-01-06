@@ -116,7 +116,12 @@ This guide will walk you through deploying the frontend to GitHub Pages and the 
    - **Branch**: `main`
    - **Root Directory**: Leave empty
    - **Environment**: `Python 3`
+   - **Python Version**: Select `Python 3.11` (or manually specify in build command)
    - **Build Command**: 
+     ```bash
+     python3.11 -m pip install -r requirements.txt
+     ```
+     Or if Python version selector is available, select `3.11` and use:
      ```bash
      pip install -r requirements.txt
      ```
