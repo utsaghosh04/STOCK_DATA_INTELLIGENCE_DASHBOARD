@@ -286,16 +286,36 @@ After deploying frontend, make sure your backend allows requests from GitHub Pag
 ### Backend Issues
 
 **Problem**: Build fails on Render
-- **Solution**: Check build logs, ensure all dependencies are in `requirements.txt`
+- **Solution**: 
+  - Check build logs in Render dashboard for specific error
+  - Ensure all dependencies are in `requirements.txt`
+  - Verify Python version (add `runtime.txt` with `python-3.11.0` if needed)
+  - Check that build command is: `pip install -r requirements.txt`
 
-**Problem**: Service crashes
-- **Solution**: Check runtime logs, verify start command uses `$PORT`
+**Problem**: "No module named 'app'" error
+- **Solution**: Verify start command is: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+**Problem**: "Port already in use" error
+- **Solution**: Make sure start command uses `$PORT` environment variable (not hardcoded port)
+
+**Problem**: Service crashes on startup
+- **Solution**: 
+  - Check runtime logs in Render dashboard
+  - Verify start command uses `$PORT`
+  - Check for import errors in logs
+  - Ensure database path is relative (for SQLite): `sqlite:///./financial_data.db`
 
 **Problem**: Database not initialized
 - **Solution**: Use Render Shell to run `python scripts/init_db.py`
 
 **Problem**: Slow first request
 - **Solution**: Normal on free tier - service spins down after 15 min inactivity. First request takes 30-60 seconds.
+
+**Problem**: Dependencies installation fails
+- **Solution**: 
+  - Check `requirements.txt` for version conflicts
+  - Some packages may need specific versions
+  - Try removing version pins and let pip resolve
 
 ### Frontend Issues
 
