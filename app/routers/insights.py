@@ -6,6 +6,9 @@ from app.database import get_db
 from app.services.ml_predictor import get_predictor
 from app.cache import cache
 from typing import List
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/insights", tags=["insights"])
 
@@ -113,4 +116,79 @@ async def predict_price(
     # Cache for 1 hour (predictions don't change frequently)
     cache.set("prediction", result, ttl=3600, symbol=symbol)
     return result
+
+@router.post("/init-db")
+async def initialize_database(db: Session = Depends(get_db)):
+    """Initialize database and seed companies (safe to call multiple times)"""
+    try:
+        from app.services.data_collector import get_all_companies
+        from app import crud, schemas
+        
+        companies = get_all_companies()
+        added_count = 0
+        
+        for company_data in companies:
+            existing = crud.get_company(db, symbol=company_data["symbol"])
+            if not existing:
+                company = schemas.CompanyBase(**company_data)
+                crud.create_company(db, company)
+                added_count += 1
+        
+        return {
+            "message": "Database initialized successfully",
+            "companies_added": added_count,
+            "total_companies": len(companies)
+        }
+    except Exception as e:
+        logger.error(f"Error initializing database: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to initialize database: {str(e)}")
+
+@router.post("/collect-data")
+async def trigger_data_collection(
+    symbol: str = None,
+    db: Session = Depends(get_db)
+):
+    """Trigger data collection for all companies or a specific symbol"""
+    try:
+        import subprocess
+        import sys
+        
+        if symbol:
+            # Collect data for specific symbol
+            result = subprocess.run(
+                [sys.executable, "scripts/collect_data.py", "--symbol", symbol],
+                capture_output=True,
+                text=True,
+                timeout=300
+            )
+        else:
+            # Collect data for all companies
+            result = subprocess.run(
+                [sys.executable, "scripts/collect_data.py", "--all"],
+                capture_output=True,
+                text=True,
+                timeout=600
+            )
+        
+        if result.returncode == 0:
+            return {
+                "message": "Data collection completed",
+                "output": result.stdout
+            }
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Data collection failed: {result.stderr}"
+            )
+    except subprocess.TimeoutExpired:
+        raise HTTPException(
+            status_code=504,
+            detail="Data collection timed out. This is normal for large datasets."
+        )
+    except Exception as e:
+        logger.error(f"Error collecting data: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to collect data: {str(e)}"
+        )
 

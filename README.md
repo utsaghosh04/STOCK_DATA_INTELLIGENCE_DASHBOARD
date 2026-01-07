@@ -158,16 +158,45 @@ https://stock-data-backend.onrender.com
 
 ### Step 5: Initialize Database
 
-After first deployment:
+**Note**: Render free tier doesn't allow shell access after first deployment. Use one of these methods:
 
-1. In Render dashboard, go to your service
-2. Click **"Shell"** tab
-3. Run these commands:
-   ```bash
-   python scripts/init_db.py
-   python scripts/collect_data.py --all
+#### Method 1: Automatic Initialization (Recommended)
+The application automatically initializes companies on startup. Tables are created automatically.
+
+#### Method 2: Use API Endpoints
+After deployment, call these endpoints to initialize:
+
+1. **Initialize Companies** (creates company records):
    ```
-4. Wait for data collection to complete
+   POST https://your-backend-url.onrender.com/insights/init-db
+   ```
+   You can call this from:
+   - Browser: Visit the URL and it will return JSON
+   - API client (Postman, curl, etc.)
+   - Or use the Swagger UI at `/docs`
+
+2. **Collect Stock Data** (optional, can take time):
+   ```
+   POST https://your-backend-url.onrender.com/insights/collect-data
+   ```
+   This will collect data for all companies (may take 5-10 minutes).
+
+#### Method 3: Initialize Before Deployment (Local)
+Run initialization locally before pushing:
+
+```bash
+# On your local machine
+python scripts/init_db.py
+python scripts/collect_data.py --all
+
+# Then commit and push (database file won't be pushed due to .gitignore)
+# But companies will be auto-initialized on Render startup
+```
+
+#### Method 4: Use Render One-Off Commands (If Available)
+Some Render plans allow one-off commands:
+- Go to your service → **Shell** (if available)
+- Or use Render CLI if you have it installed
 
 ### Step 6: Test Your Backend
 

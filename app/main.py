@@ -2,12 +2,45 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from app.database import engine, Base
+from app.database import engine, Base, SessionLocal
 from app.routers import companies, data, insights
+from app import crud, schemas
+from app.services.data_collector import get_all_companies
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
+
+# Auto-initialize companies on startup (if not already initialized)
+def init_companies_on_startup():
+    """Initialize companies table if empty"""
+    try:
+        db = SessionLocal()
+        try:
+            # Check if companies exist
+            existing_companies = crud.get_companies(db, limit=1)
+            if not existing_companies:
+                logger.info("No companies found. Initializing companies...")
+                companies = get_all_companies()
+                for company_data in companies:
+                    existing = crud.get_company(db, symbol=company_data["symbol"])
+                    if not existing:
+                        company = schemas.CompanyBase(**company_data)
+                        crud.create_company(db, company)
+                logger.info(f"Initialized {len(companies)} companies")
+            else:
+                logger.info("Companies already initialized")
+        finally:
+            db.close()
+    except Exception as e:
+        logger.warning(f"Could not auto-initialize companies: {str(e)}")
+        # Don't fail startup if initialization fails
+
+# Run initialization
+init_companies_on_startup()
 
 # Initialize FastAPI app
 app = FastAPI(
