@@ -115,13 +115,15 @@ This guide will walk you through deploying the frontend to GitHub Pages and the 
    - **Region**: Choose closest to you (e.g., `Oregon (US West)`)
    - **Branch**: `main`
    - **Root Directory**: Leave empty
+   - **Environment**: `Docker` (select this to use Dockerfile)
+   - **Dockerfile Path**: `Dockerfile` (or leave empty if Dockerfile is in root)
+   - **Docker Context**: Leave empty (or `.` if needed)
+   - **Plan**: Select **Free**
+   
+   **Alternative (if not using Docker)**:
    - **Environment**: `Python 3`
-   - **Python Version**: Select `Python 3.11` (or manually specify in build command)
+   - **Python Version**: Select `Python 3.11` (Render will read `runtime.txt`)
    - **Build Command**: 
-     ```bash
-     python3.11 -m pip install -r requirements.txt
-     ```
-     Or if Python version selector is available, select `3.11` and use:
      ```bash
      pip install -r requirements.txt
      ```
@@ -129,7 +131,6 @@ This guide will walk you through deploying the frontend to GitHub Pages and the 
      ```bash
      uvicorn app.main:app --host 0.0.0.0 --port $PORT
      ```
-   - **Plan**: Select **Free**
 
 5. **Environment Variables** (Optional):
    - Click **"Advanced"** → **"Add Environment Variable"**
