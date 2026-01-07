@@ -150,43 +150,85 @@ async def trigger_data_collection(
 ):
     """Trigger data collection for all companies or a specific symbol"""
     try:
-        import subprocess
-        import sys
+        from app.services.data_collector import fetch_stock_data, get_all_companies
+        from app.services.data_processor import clean_and_process_data, prepare_data_for_db, calculate_52_week_high_low
+        from app import crud, schemas
         
         if symbol:
             # Collect data for specific symbol
-            result = subprocess.run(
-                [sys.executable, "scripts/collect_data.py", "--symbol", symbol],
-                capture_output=True,
-                text=True,
-                timeout=300
-            )
+            companies = [{"symbol": symbol}]
         else:
             # Collect data for all companies
-            result = subprocess.run(
-                [sys.executable, "scripts/collect_data.py", "--all"],
-                capture_output=True,
-                text=True,
-                timeout=600
-            )
+            companies = get_all_companies()
         
-        if result.returncode == 0:
-            return {
-                "message": "Data collection completed",
-                "output": result.stdout
-            }
-        else:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Data collection failed: {result.stderr}"
-            )
-    except subprocess.TimeoutExpired:
-        raise HTTPException(
-            status_code=504,
-            detail="Data collection timed out. This is normal for large datasets."
-        )
+        results = []
+        for company in companies:
+            sym = company["symbol"]
+            try:
+                logger.info(f"Collecting data for {sym}...")
+                
+                # Fetch data
+                df = fetch_stock_data(sym, period="1y", use_mock_fallback=True)
+                
+                if df is None or df.empty:
+                    results.append({"symbol": sym, "status": "failed", "reason": "No data fetched"})
+                    continue
+                
+                # Process data
+                df = clean_and_process_data(df)
+                
+                if df.empty:
+                    results.append({"symbol": sym, "status": "failed", "reason": "No data after processing"})
+                    continue
+                
+                # Prepare for database
+                records = prepare_data_for_db(df, sym)
+                
+                if not records:
+                    results.append({"symbol": sym, "status": "failed", "reason": "No records to insert"})
+                    continue
+                
+                # Insert data
+                inserted_count = 0
+                for record in records:
+                    try:
+                        stock_data = schemas.StockDataBase(**record)
+                        crud.create_stock_data(db, stock_data)
+                        inserted_count += 1
+                    except Exception as e:
+                        logger.debug(f"Error inserting record: {str(e)}")
+                        continue
+                
+                # Calculate and store summary
+                summary_data = calculate_52_week_high_low(df)
+                current_price = float(df['close'].iloc[-1]) if not df.empty else None
+                
+                summary = schemas.StockSummaryBase(
+                    symbol=sym,
+                    week_52_high=summary_data["week_52_high"],
+                    week_52_low=summary_data["week_52_low"],
+                    avg_close=summary_data["avg_close"],
+                    current_price=current_price
+                )
+                
+                crud.create_or_update_stock_summary(db, summary)
+                results.append({"symbol": sym, "status": "success", "records": inserted_count})
+                
+            except Exception as e:
+                logger.error(f"Error collecting data for {sym}: {str(e)}")
+                results.append({"symbol": sym, "status": "error", "error": str(e)})
+        
+        success_count = sum(1 for r in results if r["status"] == "success")
+        return {
+            "message": "Data collection completed",
+            "total": len(companies),
+            "success": success_count,
+            "failed": len(companies) - success_count,
+            "results": results
+        }
+        
     except Exception as e:
-        logger.error(f"Error collecting data: {str(e)}")
+        logger.error(f"Error in data collection endpoint: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Failed to collect data: {str(e)}"
