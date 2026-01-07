@@ -424,6 +424,8 @@ After deploying frontend, make sure your backend allows requests from GitHub Pag
 - `GET /data/compare?symbol1=X&symbol2=Y` - Compare two stocks
 - `GET /insights` - Get top gainers/losers and insights
 - `GET /insights/predict/{symbol}` - Get price prediction for a stock
+- `POST /insights/init-db` - Initialize database and seed companies (for Render deployment)
+- `POST /insights/collect-data` - Trigger data collection for all companies
 
 API documentation available at: `https://your-backend-url.onrender.com/docs`
 
