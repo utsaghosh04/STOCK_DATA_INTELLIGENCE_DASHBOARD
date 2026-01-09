@@ -57,17 +57,15 @@ import os
 cors_origins = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    # Add your GitHub Pages URL here (uncomment and update):
-    # "https://utsaghosh04.github.io/STOCK_DATA_INTELLIGENCE_DASHBOARD/",
     "https://utsaghosh04.github.io",
-    # Or use regex pattern for all github.io subdomains:
+    "https://utsaghosh04.github.io/STOCK_DATA_INTELLIGENCE_DASHBOARD",
 ]
 
-# For production, you can set ENVIRONMENT=production and add specific origins
-# For now, allowing all origins (update in production)
+# Allow all origins for now (update in production with specific origins)
+# In production, you can restrict to: allow_origins=cors_origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update this in production with specific origins
+    allow_origins=["*"],  # Allows all origins - update to cors_origins for production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
