@@ -79,7 +79,12 @@ app.include_router(insights.router)
 # Serve static files (frontend)
 static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
 if os.path.exists(static_dir):
+    # Mount static files directory
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    
+    # Also serve individual static file types
+    app.mount("/css", StaticFiles(directory=os.path.join(static_dir, "css")), name="css")
+    app.mount("/js", StaticFiles(directory=os.path.join(static_dir, "js")), name="js")
 
 @app.get("/")
 async def root():
