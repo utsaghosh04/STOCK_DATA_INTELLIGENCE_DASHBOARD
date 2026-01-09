@@ -371,6 +371,20 @@ After deploying frontend, make sure your backend allows requests from GitHub Pag
   - If backend is not accessible, check Render dashboard for deployment status
   - Initialize database if needed: `POST https://your-backend-url.onrender.com/insights/init-db`
 
+**Problem**: "Failed to load stock data" error
+- **Solution**: 
+  - **Most common cause**: Database has no stock data yet
+  - **Step 1**: Initialize companies (if not done automatically):
+    - Visit: `https://your-backend-url.onrender.com/insights/init-db`
+    - Or use Swagger UI at `/docs` → POST `/insights/init-db`
+  - **Step 2**: Collect stock data:
+    - Visit: `https://your-backend-url.onrender.com/insights/collect-data`
+    - Or use Swagger UI at `/docs` → POST `/insights/collect-data`
+    - This may take 5-10 minutes for all companies
+  - **Step 3**: Check browser console (F12) for detailed error messages
+  - **Step 4**: Verify backend is accessible: `https://your-backend-url.onrender.com/health`
+  - **Step 5**: Test API directly: `https://your-backend-url.onrender.com/companies`
+
 **Problem**: GitHub Pages workflow fails
 - **Solution**: Make sure Pages is enabled in Settings → Pages first
 
