@@ -10,6 +10,20 @@ let volumeChart = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
+    // Log API configuration for debugging
+    console.log('=== Frontend Initialization ===');
+    console.log('API Base URL:', API_BASE || '(using same origin)');
+    console.log('Current URL:', window.location.href);
+    console.log('Hostname:', window.location.hostname);
+    
+    // Test backend connectivity
+    if (API_BASE) {
+        fetch(`${API_BASE}/health`)
+            .then(response => response.json())
+            .then(data => console.log('Backend health check:', data))
+            .catch(error => console.warn('Backend health check failed:', error));
+    }
+    
     loadCompanies();
     loadInsights();
     setupEventListeners();
@@ -66,15 +80,30 @@ function setupEventListeners() {
 // Load companies list
 async function loadCompanies() {
     try {
+        console.log('Loading companies from:', `${API_BASE}/companies`);
         const response = await fetch(`${API_BASE}/companies`);
-        if (!response.ok) throw new Error('Failed to load companies');
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to load companies (${response.status}): ${errorText}`);
+        }
         
         companies = await response.json();
+        
+        if (!companies || companies.length === 0) {
+            throw new Error('No companies found. Database may need initialization.');
+        }
+        
         renderCompanies(companies);
     } catch (error) {
         console.error('Error loading companies:', error);
+        console.error('API Base URL:', API_BASE);
         document.getElementById('companiesList').innerHTML = 
-            '<div class="error">Failed to load companies. Please try again later.</div>';
+            `<div class="error">
+                <strong>Failed to load companies</strong><br>
+                ${error.message}<br>
+                <small>Check if backend is running and database is initialized</small>
+            </div>`;
     }
 }
 
@@ -137,13 +166,53 @@ async function loadStockData(symbol) {
     try {
         const days = document.getElementById('timeFilter').value;
         const response = await fetch(`${API_BASE}/data/${symbol}?days=${days}`);
-        if (!response.ok) throw new Error('Failed to load stock data');
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = `Failed to load stock data (${response.status})`;
+            
+            if (response.status === 404) {
+                errorMessage = `No stock data found for ${symbol}. The database may need to be initialized.`;
+                // Show helpful message
+                document.getElementById('selectedCompany').innerHTML = 
+                    `<span style="color: #ef4444;">⚠️ No data for ${symbol}. 
+                    <a href="${API_BASE}/insights/collect-data" target="_blank" style="color: #667eea;">Initialize database</a> or wait for data collection.</span>`;
+            } else {
+                errorMessage = `Error ${response.status}: ${errorText || 'Unknown error'}`;
+            }
+            
+            throw new Error(errorMessage);
+        }
         
         const data = await response.json();
+        
+        if (!data || data.length === 0) {
+            throw new Error(`No data available for ${symbol}. Database may need initialization.`);
+        }
+        
         renderCharts(data);
     } catch (error) {
         console.error('Error loading stock data:', error);
-        alert('Failed to load stock data');
+        console.error('API Base URL:', API_BASE);
+        console.error('Full URL:', `${API_BASE}/data/${symbol}?days=${document.getElementById('timeFilter').value}`);
+        
+        // Show user-friendly error
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error';
+        errorDiv.innerHTML = `
+            <strong>Failed to load stock data</strong><br>
+            ${error.message}<br>
+            <small>Check browser console (F12) for details</small>
+        `;
+        
+        // Clear charts area and show error
+        const chartsContainer = document.querySelector('.charts-container');
+        if (chartsContainer) {
+            chartsContainer.innerHTML = '';
+            chartsContainer.appendChild(errorDiv);
+        } else {
+            alert(`Failed to load stock data: ${error.message}`);
+        }
     }
 }
 
@@ -151,12 +220,19 @@ async function loadStockData(symbol) {
 async function loadSummary(symbol) {
     try {
         const response = await fetch(`${API_BASE}/data/summary/${symbol}`);
-        if (!response.ok) throw new Error('Failed to load summary');
+        if (!response.ok) {
+            if (response.status === 404) {
+                console.warn(`No summary found for ${symbol} - this is normal if data hasn't been collected yet`);
+                return; // Don't show error for missing summary
+            }
+            throw new Error(`Failed to load summary (${response.status})`);
+        }
         
         const summary = await response.json();
         renderSummary(summary);
     } catch (error) {
         console.error('Error loading summary:', error);
+        // Don't show alert for summary errors - it's not critical
     }
 }
 
