@@ -356,7 +356,20 @@ After deploying frontend, make sure your backend allows requests from GitHub Pag
 - **Solution**: Update CORS in `app/main.py` with your GitHub Pages URL
 
 **Problem**: API calls fail (404 or connection error)
-- **Solution**: Check `static/js/config.js` has correct backend URL
+- **Solution**: 
+  - Check `static/js/config.js` has correct backend URL
+  - Verify backend is accessible: Visit `https://your-backend-url.onrender.com/health`
+  - Check browser console (F12) for specific error messages
+  - Backend might be spinning up (free tier takes 30-60 seconds on first request)
+
+**Problem**: Backend functionalities not working on GitHub Pages
+- **Solution**: 
+  - **GitHub Pages only serves static files** - backend must be on Render
+  - Verify backend URL in `static/js/config.js` matches your Render service URL
+  - Check browser console (F12) - you should see: `API Base URL: https://your-backend-url.onrender.com`
+  - Test backend directly: Visit `https://your-backend-url.onrender.com/companies`
+  - If backend is not accessible, check Render dashboard for deployment status
+  - Initialize database if needed: `POST https://your-backend-url.onrender.com/insights/init-db`
 
 **Problem**: GitHub Pages workflow fails
 - **Solution**: Make sure Pages is enabled in Settings → Pages first
