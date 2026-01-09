@@ -11,7 +11,7 @@ const API_BASE_LOCAL = '';
 // - Heroku: https://your-app.herokuapp.com
 // - Fly.io: https://your-app.fly.dev
 // - Custom domain: https://api.yourdomain.com
-const API_BASE_PRODUCTION = 'https://your-backend-url.here';
+const API_BASE_PRODUCTION = 'https://stock-data-intelligence-dashboard-3.onrender.com';
 
 // Auto-detect environment
 const isLocalhost = window.location.hostname === 'localhost' || 

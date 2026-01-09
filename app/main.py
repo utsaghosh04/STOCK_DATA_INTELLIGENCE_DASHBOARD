@@ -58,7 +58,8 @@ cors_origins = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     # Add your GitHub Pages URL here (uncomment and update):
-    # "https://yourusername.github.io",
+    # "https://utsaghosh04.github.io/STOCK_DATA_INTELLIGENCE_DASHBOARD/",
+    "https://utsaghosh04.github.io",
     # Or use regex pattern for all github.io subdomains:
 ]
 

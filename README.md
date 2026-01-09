@@ -2,36 +2,34 @@
 
 A comprehensive financial data platform that collects, processes, and visualizes stock market data with REST APIs and an interactive dashboard.
 
-## ✅ Assignment Requirements - All Completed
+### Part 1: Data Collection & Preparation 
+-  Stock market data collection using yfinance API
+-  Data cleaning with Pandas (missing values, date conversion)
+-  Daily Return calculation: `(CLOSE - OPEN) / OPEN`
+-  7-day Moving Average
+-  52-week High/Low calculation
+-  **Custom Metrics**: Volatility Score, Sentiment Index, Correlation Analysis
 
-### Part 1: Data Collection & Preparation ✅
-- ✅ Stock market data collection using yfinance API
-- ✅ Data cleaning with Pandas (missing values, date conversion)
-- ✅ Daily Return calculation: `(CLOSE - OPEN) / OPEN`
-- ✅ 7-day Moving Average
-- ✅ 52-week High/Low calculation
-- ✅ **Custom Metrics**: Volatility Score, Sentiment Index, Correlation Analysis
+### Part 2: Backend API Development 
+-  `GET /companies` - List all companies
+-  `GET /data/{symbol}` - Last 30 days of stock data
+-  `GET /data/summary/{symbol}` - 52-week high, low, average
+-  `GET /data/compare?symbol1=X&symbol2=Y` - Compare stocks
+-  Swagger documentation at `/docs`
 
-### Part 2: Backend API Development ✅
-- ✅ `GET /companies` - List all companies
-- ✅ `GET /data/{symbol}` - Last 30 days of stock data
-- ✅ `GET /data/summary/{symbol}` - 52-week high, low, average
-- ✅ `GET /data/compare?symbol1=X&symbol2=Y` - Compare stocks
-- ✅ Swagger documentation at `/docs`
+### Part 3: Visualization Dashboard 
+-  Company list with interactive selection
+-  Closing price charts (Chart.js)
+-  Time filters (30/90/180/365 days)
+-  Stock comparison feature
+-  Top Gainers/Losers insights
+-  ML price prediction
 
-### Part 3: Visualization Dashboard ✅
-- ✅ Company list with interactive selection
-- ✅ Closing price charts (Chart.js)
-- ✅ Time filters (30/90/180/365 days)
-- ✅ Stock comparison feature
-- ✅ Top Gainers/Losers insights
-- ✅ ML price prediction
-
-### Part 4: Optional Add-ons ✅
-- ✅ Docker & Docker Compose
-- ✅ ML price prediction (Linear Regression)
-- ✅ Caching layer (in-memory with TTL)
-- ✅ Async API endpoints
+### Part 4: Optional Add-ons 
+-  Docker & Docker Compose
+-  ML price prediction (Linear Regression)
+-  Caching layer (in-memory with TTL)
+-  Async API endpoints
 
 ## Features
 
@@ -243,8 +241,8 @@ Test these URLs:
 5. **Click "Save"**
 
 6. **Wait a few seconds** - you should see:
-   - ✅ Green checkmark
-   - ✅ Message: "Your site is live at https://yourusername.github.io/STOCK_DATA_INTELLIGENCE_DASHBOARD"
+   -  Green checkmark
+   -  Message: "Your site is live at https://yourusername.github.io/STOCK_DATA_INTELLIGENCE_DASHBOARD"
 
 ### Step 3: Configure CORS in Backend
 
