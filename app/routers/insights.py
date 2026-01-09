@@ -5,7 +5,7 @@ from app import crud, schemas
 from app.database import get_db
 from app.services.ml_predictor import get_predictor
 from app.cache import cache
-from typing import List
+from typing import List, Optional
 import logging
 
 logger = logging.getLogger(__name__)

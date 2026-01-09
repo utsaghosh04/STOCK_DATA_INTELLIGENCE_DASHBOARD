@@ -82,9 +82,16 @@ async def get_stock_summary(symbol: str, db: Session = Depends(get_db)):
     
     summary = crud.get_stock_summary(db, symbol=symbol)
     if summary is None:
+        # Check if company exists
+        company = crud.get_company(db, symbol=symbol)
+        if not company:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Symbol {symbol} not found. Please initialize the database first: /insights/init-db"
+            )
         raise HTTPException(
             status_code=404,
-            detail=f"No summary found for symbol {symbol}"
+            detail=f"No summary found for {symbol}. Please collect data first: /insights/collect-data"
         )
     
     # Cache for 10 minutes
