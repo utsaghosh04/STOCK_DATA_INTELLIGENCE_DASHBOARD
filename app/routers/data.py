@@ -112,9 +112,16 @@ async def get_stock_data(
     
     stock_data = crud.get_stock_data(db, symbol=symbol, days=days)
     if not stock_data:
+        # Check if company exists
+        company = crud.get_company(db, symbol=symbol)
+        if not company:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Symbol {symbol} not found. Please initialize the database first: /insights/init-db"
+            )
         raise HTTPException(
-            status_code=404, 
-            detail=f"No data found for symbol {symbol}"
+            status_code=404,
+            detail=f"No stock data found for {symbol}. Please collect data first: /insights/collect-data"
         )
     
     # Cache for 5 minutes

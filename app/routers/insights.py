@@ -234,3 +234,48 @@ async def trigger_data_collection(
             detail=f"Failed to collect data: {str(e)}"
         )
 
+@router.get("/check-data")
+async def check_data_status(
+    symbol: Optional[str] = Query(None, description="Optional: check specific symbol"),
+    db: Session = Depends(get_db)
+):
+    """Check if database has been initialized and if stock data exists"""
+    try:
+        # Check companies
+        companies = crud.get_companies(db)
+        companies_count = len(companies) if companies else 0
+        
+        # Check stock data
+        if symbol:
+            stock_data = crud.get_stock_data(db, symbol=symbol, days=365)
+            stock_count = len(stock_data) if stock_data else 0
+            summary = crud.get_stock_summary(db, symbol=symbol)
+            return {
+                "initialized": companies_count > 0,
+                "companies_count": companies_count,
+                "symbol": symbol,
+                "has_data": stock_count > 0,
+                "data_points": stock_count,
+                "has_summary": summary is not None,
+                "message": f"Symbol {symbol}: {stock_count} data points" if stock_count > 0 else f"Symbol {symbol}: No data found. Run /insights/collect-data"
+            }
+        else:
+            # Check all companies
+            total_data_points = 0
+            companies_with_data = 0
+            for company in companies[:10]:  # Check first 10
+                data = crud.get_stock_data(db, symbol=company.symbol, days=365)
+                if data:
+                    total_data_points += len(data)
+                    companies_with_data += 1
+            
+            return {
+                "initialized": companies_count > 0,
+                "companies_count": companies_count,
+                "companies_with_data": companies_with_data,
+                "total_data_points": total_data_points,
+                "message": f"Database initialized: {companies_count} companies. Data collected for {companies_with_data} companies." if companies_count > 0 else "Database not initialized. Run /insights/init-db first."
+            }
+    except Exception as e:
+        logger.error(f"Error checking data status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to check data status: {str(e)}")
