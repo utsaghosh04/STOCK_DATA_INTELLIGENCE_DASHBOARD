@@ -165,19 +165,19 @@ The application automatically initializes companies on startup. Tables are creat
 After deployment, call these endpoints to initialize:
 
 1. **Initialize Companies** (creates company records):
+   - Simply visit this URL in your browser:
    ```
-   POST https://your-backend-url.onrender.com/insights/init-db
+   https://your-backend-url.onrender.com/insights/init-db
    ```
-   You can call this from:
-   - Browser: Visit the URL and it will return JSON
-   - API client (Postman, curl, etc.)
-   - Or use the Swagger UI at `/docs`
+   You should see JSON response like: `{"message": "Database initialized successfully", "companies_added": 15}`
 
 2. **Collect Stock Data** (optional, can take time):
+   - Visit this URL in your browser:
    ```
-   POST https://your-backend-url.onrender.com/insights/collect-data
+   https://your-backend-url.onrender.com/insights/collect-data
    ```
    This will collect data for all companies (may take 5-10 minutes).
+   - You'll see progress in the JSON response
 
 #### Method 3: Initialize Before Deployment (Local)
 Run initialization locally before pushing:

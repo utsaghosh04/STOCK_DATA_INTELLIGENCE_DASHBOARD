@@ -117,9 +117,9 @@ async def predict_price(
     cache.set("prediction", result, ttl=3600, symbol=symbol)
     return result
 
-@router.post("/init-db")
+@router.get("/init-db")
 async def initialize_database(db: Session = Depends(get_db)):
-    """Initialize database and seed companies (safe to call multiple times)"""
+    """Initialize database and seed companies (safe to call multiple times). Can be accessed via browser."""
     try:
         from app.services.data_collector import get_all_companies
         from app import crud, schemas
@@ -143,12 +143,12 @@ async def initialize_database(db: Session = Depends(get_db)):
         logger.error(f"Error initializing database: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to initialize database: {str(e)}")
 
-@router.post("/collect-data")
+@router.get("/collect-data")
 async def trigger_data_collection(
     symbol: str = None,
     db: Session = Depends(get_db)
 ):
-    """Trigger data collection for all companies or a specific symbol"""
+    """Trigger data collection for all companies or a specific symbol. Can be accessed via browser."""
     try:
         from app.services.data_collector import fetch_stock_data, get_all_companies
         from app.services.data_processor import clean_and_process_data, prepare_data_for_db, calculate_52_week_high_low
