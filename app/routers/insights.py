@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app import crud, schemas
@@ -145,7 +145,7 @@ async def initialize_database(db: Session = Depends(get_db)):
 
 @router.get("/collect-data")
 async def trigger_data_collection(
-    symbol: str = None,
+    symbol: str = Query(None, description="Optional: specific symbol to collect data for. If not provided, collects for all companies."),
     db: Session = Depends(get_db)
 ):
     """Trigger data collection for all companies or a specific symbol. Can be accessed via browser."""
